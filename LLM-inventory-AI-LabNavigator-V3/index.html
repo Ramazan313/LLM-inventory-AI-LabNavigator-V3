@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Teknokent - Yapay Zeka Asistanı</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9fafb;
+      color: #111827;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #2563eb;
+    }
+
+    textarea {
+      width: 80%;
+      max-width: 600px;
+      height: 100px;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      margin-top: 10px;
+      resize: none;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    button:hover {
+      background-color: #1e40af;
+    }
+
+    #answer-box {
+      margin-top: 20px;
+      width: 80%;
+      max-width: 600px;
+      background-color: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Öneri sorular bölümü */
+    .suggestions {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      width: 80%;
+      max-width: 600px;
+    }
+
+    .suggestion {
+      background-color: #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 15px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.95rem;
+      text-align: center;
+      flex: 1 1 45%;
+    }
+
+    .suggestion:hover {
+      background-color: #dbeafe;
+      color: #1e3a8a;
+    }
+
+    @media (max-width: 600px) {
+      .suggestion {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Teknokent AI</h1>
+
+  <textarea id="question" placeholder="Sorunuzu buraya yazın..."></textarea>
+  <button onclick="sendQuestion()">Sor</button>
+
+  <div class="suggestions">
+    <div class="suggestion" onclick="showStaticAnswer('Teknokent yetkili iletişim numarası nedir?')">
+      Teknokent yetkili iletişim numarası nedir?
+    </div>
+    <div class="suggestion" onclick="showStaticAnswer('Üniversite bünyesindeki laboratuvarlarda hangi sektörler için hizmet verilmektedir?')">
+      Üniversite bünyesindeki laboratuvarlarda hangi sektörler için hizmet verilmektedir?
+    </div>
+    <div class="suggestion" onclick="showStaticAnswer('Hangi alanlarda soru sorabilirim?')">
+      Hangi alanlarda soru sorabilirim?
+    </div>
+  </div>
+
+  <div id="answer-box">
+    <h3>Cevap:</h3>
+    <p id="answer-text">Henüz bir soru sorulmadı.</p>
+  </div>
+
+  <script>
+    // Statik cevaplar (model kullanılmadan gösterilecek)
+    const staticAnswers = {
+      "Teknokent yetkili iletişim numarası nedir?":
+        "Teknokent yetkilisi iletişim numarası: (0264) 346 02 02",
+      "Üniversite bünyesindeki laboratuvarlarda hangi sektörler için hizmet verilmektedir?":
+        "Makine imalatı, elektrikli cihazlar, haberleşme, tıp, biyoteknoloji gibi birçok alanda hizmet sağlanmaktadır. Daha detaylı bilgi almak için teknokent yetkilisi ile iletişime geçebilirsiniz. (0264) 346 02 02",
+      "Hangi alanlarda soru sorabilirim?":
+        "Üretmekte olduğunuz cihazlar için yapılabilecek testler hakkında soru sorabilir, laboratuvarlarımız ve cihazlarımız hakkında bilgi alabilirsiniz."
+    };
+
+    async function sendQuestion() {
+      const question = document.getElementById("question").value.trim();
+      const answerBox = document.getElementById("answer-text");
+
+      if (!question) {
+        alert("Lütfen bir soru yazın!");
+        return;
+      }
+
+      // Eğer statik cevap varsa modeli çağırma
+      if (staticAnswers[question]) {
+        answerBox.innerText = staticAnswers[question];
+        return;
+      }
+
+      answerBox.innerText = "Cevap üretiliyor...";
+
+      try {
+        //const response = await fetch("https://rob-unresplendent-levelly.ngrok-free.dev/ask", {
+        const response = await fetch("https://supports-mounted-booking-additionally.trycloudflare.com/ask", {
+
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question })
+        });
+
+        const data = await response.json();
+        answerBox.innerText = data.answer || "Cevap bulunamadı.";
+      } catch (error) {
+        console.error(error);
+        answerBox.innerText = "Sunucuya bağlanılamadı.";
+      }
+    }
+
+    // Hazır soruya tıklanınca cevap kutusunu güncelle
+    function showStaticAnswer(questionText) {
+      document.getElementById("question").value = questionText;
+      const answerBox = document.getElementById("answer-text");
+      answerBox.innerText = staticAnswers[questionText] || "Cevap bulunamadı.";
+    }
+  </script>
+</body>
+</html>
